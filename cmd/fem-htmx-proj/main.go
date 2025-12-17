@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"text/template"
+	"time"
 )
 
 type Count struct {
@@ -21,16 +21,28 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	http.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		tmpl.Execute(w, count)
+	router := http.NewServeMux()
+
+	router.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
+		tmpl.ExecuteTemplate(w, "index", count)
 	})
 
-	http.HandleFunc("POST /count/{$}", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("POST /count/{$}", func(w http.ResponseWriter, r *http.Request) {
 		count.Count++
-		fmt.Fprintf(w, "Count %d", count.Count)
+		tmpl.ExecuteTemplate(w, "count", count)
 	})
 
 	// start server
 	log.Printf("Server started at http://%s", PORT) // the "http://" is for convenience, idk if always correct tho
-	http.ListenAndServe(PORT, nil)
+	http.ListenAndServe(PORT, logging(router))
+}
+
+// copied from the dreamsofcode guy, manually typed tho
+func logging(next http.Handler) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			start := time.Now()
+			next.ServeHTTP(w, r)
+			log.Println(r.Method, r.URL.Path, time.Since(start))
+		})
 }
