@@ -8,18 +8,33 @@
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
   </head>
   <body>
-    <span id="count"> {{ block "count" . }} Count {{ .Count }} {{ end }} </span>
-    <button hx-target="#count" hx-post="/count/">+</button>
+    <main>
+      <span id="count">
+        {{ block "count" . }} Count {{ .Count }} {{ end }}
+      </span>
+      <button hx-target="#count" hx-post="/count/">+</button>
 
-    {{ block "contact-form" . }}
-    <form>
-      <label for="name">Name: </label>
-      <input type="text" id="name" name="name" />
-      <label for="email">Email: </label>
-      <input type="email" id="email" email="email" />
-    </form>
-    {{ end }} {{ block "contacts" . }} {{ range .Contacts }}
-    <div>Name: <span>{{ .Name }}</span> Email: <span>{{ .Email }}</span></div>
-    {{ end }} {{ end }}
+      {{ block "contact-form" . }}
+      <form hx-target="#contacts" hx-post="/contacts/">
+        <label for="name">Name: </label>
+        <input type="text" id="name" name="name" placeholder="Name" />
+
+        <label for="email">Email: </label>
+        <input type="email" id="email" name="email" placeholder="Email" />
+
+        <button type="submit">Create Contact</button>
+      </form>
+      {{ end }}
+
+      <hr />
+
+      <div id="contacts">
+        {{ block "contacts" . }} {{ range .Contacts }}
+        <div>
+          Name: <span>{{ .Name }}</span> Email: <span>{{ .Email }}</span>
+        </div>
+        {{ end }} {{ end }}
+      </div>
+    </main>
   </body>
 </html>

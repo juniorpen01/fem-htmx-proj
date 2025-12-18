@@ -7,28 +7,28 @@ import (
 	"time"
 )
 
-type Count struct {
-	Count int
+type Contact struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
-type Contact struct {
-	Name, Email string
-}
+type (
+	Count    int
+	Contacts []Contact
+)
 
 const PORT = "localhost:42069"
 
+var mockContacts = Contacts{
+	{"idiot", "idiot@gmail.com"},
+	{"dummkopf", "dummkopf101@gmail.com"},
+}
+
 func main() {
-	count := Count{}
-
-	mockContacts := []Contact{
-		{"idiot", "idiot@gmail.com"},
-		{"dummkopf", "dummkopf@gmail.com"},
-	}
-
 	data := struct {
 		Count
-		Contacts []Contact
-	}{count, mockContacts}
+		Contacts
+	}{0, mockContacts}
 
 	tmpl, err := template.ParseFiles("web/template/index.html")
 	if err != nil {
@@ -42,8 +42,20 @@ func main() {
 	})
 
 	router.HandleFunc("POST /count/{$}", func(w http.ResponseWriter, r *http.Request) {
-		count.Count++
-		tmpl.ExecuteTemplate(w, "count", count)
+		data.Count++
+		tmpl.ExecuteTemplate(w, "count", data)
+	})
+
+	router.HandleFunc("POST /contacts/{$}", func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest) // copy pasted from chatgpt
+			return
+		}
+
+		contact := Contact{r.FormValue("name"), r.FormValue("email")}
+
+		data.Contacts = append(data.Contacts, contact)
+		tmpl.ExecuteTemplate(w, "contacts", data)
 	})
 
 	// start server
