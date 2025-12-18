@@ -6,6 +6,11 @@
     <title></title>
     <!-- <link href="css/style.css" rel="stylesheet" /> -->
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+    <script defer>
+      document.addEventListener("htmx:beforeSwap", (e) => {
+        if (e.detail.xhr.status == 409) e.detail.shouldSwap = true;
+      });
+    </script>
   </head>
   <body>
     <main>
@@ -15,12 +20,42 @@
       <button hx-target="#count" hx-post="/count/">+</button>
 
       {{ block "contact-form" . }}
-      <form hx-target="#contacts" hx-post="/contacts/">
+      <form hx-swap="outerHTML" hx-post="/contacts/">
         <label for="name">Name: </label>
-        <input type="text" id="name" name="name" placeholder="Name" />
+        <input
+          {{
+          if
+          .Values.Name
+          }}
+          value="{{ .Values.Name }}"
+          {{
+          end
+          }}
+          type="text"
+          id="name"
+          name="name"
+          placeholder="Name"
+        />
 
         <label for="email">Email: </label>
-        <input type="email" id="email" name="email" placeholder="Email" />
+        <input
+          {{
+          if
+          .Values.Email
+          }}
+          value="{{ .Values.Email }}"
+          {{
+          end
+          }}
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Email"
+        />
+
+        {{ if .Error }}
+        <div style="color: red">{{ .Error }}</div>
+        {{ end }}
 
         <button type="submit">Create Contact</button>
       </form>
@@ -31,10 +66,18 @@
       <div id="contacts">
         {{ block "contacts" . }} {{ range .Contacts }}
         <div>
-          Name: <span>{{ .Name }}</span> Email: <span>{{ .Email }}</span>
+          {{ block "contact" . }} Name: <span>{{ .Name }}</span> Email:
+          <span>{{ .Email }}</span>
+          {{ end }}
         </div>
         {{ end }} {{ end }}
       </div>
     </main>
   </body>
 </html>
+
+{{ define "oob-contact" }}
+<div id="contacts" hx-swap-oob="afterbegin">
+  <div>{{ template "contact" . }}</div>
+</div>
+{{ end }}
