@@ -1,43 +1,32 @@
 package main
 
 import (
+	"html/template"
 	"log"
 	"net/http"
-	"text/template"
 	"time"
-)
 
-type Contact struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
+	contact_store "github.com/juniorpen01/fem-htmx-proj/internal"
+)
 
 type (
 	Count    int
-	Contacts []Contact
+	Contacts []contact_store.Contact
 )
 
-func (c Contacts) hasEmail(email string) bool {
-	for _, contact := range c {
-		if contact.Email == email {
-			return true
-		}
-	}
-	return false
-}
-
-const PORT = "localhost:42069"
-
-var mockContacts = Contacts{
-	{"idiot", "idiot@gmail.com"},
-	{"dummkopf", "dummkopf101@gmail.com"},
-}
-
 func main() {
+	const PORT = "localhost:42069"
+
+	mockContactStore := contact_store.Contacts{}
+
+	mockContactStore.Add(contact_store.Contact{Name: "idiot", Email: "idiot@gmail.com"})
+	mockContactStore.Add(contact_store.Contact{Name: "dummkopf", Email: "dummkopf@gmail.com"})
+	mockContactStore.Add(contact_store.Contact{Name: "therealdummkopf", Email: "dummkopf@gmail.com"})
+
 	data := struct {
 		Count
 		Contacts
-	}{0, mockContacts}
+	}{}
 
 	tmpl, err := template.ParseFiles("web/template/index.html")
 	if err != nil {
@@ -56,17 +45,15 @@ func main() {
 	})
 
 	router.HandleFunc("POST /contacts/{$}", func(w http.ResponseWriter, r *http.Request) {
-		name, email := r.FormValue("name"), r.FormValue("email")
+		contact := contact_store.Contact{Name: r.FormValue("name"), Email: r.FormValue("email")}
 
-		if data.hasEmail(email) {
-
-			http.Error(w, "dupe", http.StatusConflict)
+		if err := mockContactStore.Add(contact); err != nil {
+			http.Error(w, err.Error(), http.StatusConflict)
 			return
 		}
 
-		contact := Contact{name, email}
+		data.Contacts = mockContactStore.Contacts()
 
-		data.Contacts = append(data.Contacts, contact)
 		tmpl.ExecuteTemplate(w, "contacts", data)
 	})
 
