@@ -11,10 +11,24 @@ type Count struct {
 	Count int
 }
 
+type Contact struct {
+	Name, Email string
+}
+
 const PORT = "localhost:42069"
 
 func main() {
 	count := Count{}
+
+	mockContacts := []Contact{
+		{"idiot", "idiot@gmail.com"},
+		{"dummkopf", "dummkopf@gmail.com"},
+	}
+
+	data := struct {
+		Count
+		Contacts []Contact
+	}{count, mockContacts}
 
 	tmpl, err := template.ParseFiles("web/template/index.html")
 	if err != nil {
@@ -24,7 +38,7 @@ func main() {
 	router := http.NewServeMux()
 
 	router.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		tmpl.ExecuteTemplate(w, "index", count)
+		tmpl.Execute(w, data)
 	})
 
 	router.HandleFunc("POST /count/{$}", func(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +51,7 @@ func main() {
 	http.ListenAndServe(PORT, logging(router))
 }
 
-// copied from the dreamsofcode guy, manually typed tho
+// copied from the dreamsofcode guy, manually typed tho; ok i understand this now
 func logging(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
