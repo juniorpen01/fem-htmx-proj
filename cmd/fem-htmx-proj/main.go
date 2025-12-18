@@ -17,6 +17,15 @@ type (
 	Contacts []Contact
 )
 
+func (c Contacts) hasEmail(email string) bool {
+	for _, contact := range c {
+		if contact.Email == email {
+			return true
+		}
+	}
+	return false
+}
+
 const PORT = "localhost:42069"
 
 var mockContacts = Contacts{
@@ -47,12 +56,15 @@ func main() {
 	})
 
 	router.HandleFunc("POST /contacts/{$}", func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseForm(); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest) // copy pasted from chatgpt
+		name, email := r.FormValue("name"), r.FormValue("email")
+
+		if data.hasEmail(email) {
+
+			http.Error(w, "dupe", http.StatusConflict)
 			return
 		}
 
-		contact := Contact{r.FormValue("name"), r.FormValue("email")}
+		contact := Contact{name, email}
 
 		data.Contacts = append(data.Contacts, contact)
 		tmpl.ExecuteTemplate(w, "contacts", data)
