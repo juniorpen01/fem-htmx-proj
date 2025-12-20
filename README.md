@@ -2,14 +2,7 @@
 
 My walkthrough of ThePrimeagen's introduction to HTMX.
 
-<!-- hack -->
-
-## Run
-
-```sh
-
-CompileDaemon -build "go build -C cmd/fem-htmx-proj/ -o ../../bin/fem-htmx-proj" -command ./bin/fem-htmx-proj
-```
+> Rewrite so I can digest better the video.
 
 ## References
 
