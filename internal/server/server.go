@@ -18,6 +18,10 @@ func Run() {
 	count := struct{ Count int }{}
 
 	// routes
+
+	// serve static files NOTE: kinda copied from chatgpt but ye i think i understand it
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
+
 	http.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		tmpl.Execute(w, count)
 	})
