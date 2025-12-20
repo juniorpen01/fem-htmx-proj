@@ -24,10 +24,18 @@
 
       <form hx-swap="beforeend" hx-target="#contacts" hx-post="/contacts">
         <label for="name">name: </label>
-        <input placeholder="name" id="name" type="text" name="name" value="" />
+        <input
+          required
+          placeholder="name"
+          id="name"
+          type="text"
+          name="name"
+          value=""
+        />
 
         <label for="email">email: </label>
         <input
+          required
           placeholder="email"
           id="email"
           type="email"

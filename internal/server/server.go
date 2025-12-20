@@ -2,6 +2,7 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,6 +13,24 @@ type contact struct {
 	Name, Email string
 }
 type contacts []contact
+
+func (c *contacts) add(contact contact) error {
+	if c.hasEmail(contact.Email) {
+		return errors.New("duplicate email")
+	} else {
+		*c = append(*c, contact)
+		return nil
+	}
+}
+
+func (c contacts) hasEmail(email string) bool {
+	for _, contact := range c {
+		if email == contact.Email {
+			return true
+		}
+	}
+	return false
+}
 
 const addr = ":8080"
 
@@ -44,7 +63,9 @@ func Run() {
 		email := r.FormValue("email")
 
 		newContact := contact{name, email}
-		data.Contacts = append(data.Contacts, newContact)
+		if err := data.Contacts.add(newContact); err != nil {
+			http.Error(w, err.Error(), http.StatusConflict)
+		}
 
 		tmpl.ExecuteTemplate(w, "contact", newContact)
 	})
