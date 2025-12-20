@@ -9,6 +9,11 @@ import (
 	"text/template"
 )
 
+type form struct {
+	// Values contact NOTE: doesnt seem to serve a purpose with how i did it
+	Error string
+}
+
 type contact struct {
 	Name, Email string
 }
@@ -42,6 +47,7 @@ func Run() {
 	data := struct {
 		Count    int
 		Contacts contacts
+		Form     form
 	}{Contacts: contacts{{"idiot@gmail.com", "idiot@gmail.com"}, {"dummkopf", "dummkopf101@gmail.com"}}}
 
 	// routes
@@ -64,10 +70,15 @@ func Run() {
 
 		newContact := contact{name, email}
 		if err := data.Contacts.add(newContact); err != nil {
-			http.Error(w, err.Error(), http.StatusConflict)
-		}
+			// data.Form.Values = newContact
+			data.Form.Error = err.Error()
 
-		tmpl.ExecuteTemplate(w, "contact", newContact)
+			w.WriteHeader(http.StatusConflict)
+			tmpl.ExecuteTemplate(w, "contact-error", data.Form)
+		} else {
+			data.Form.Error = ""
+			tmpl.ExecuteTemplate(w, "contact", newContact)
+		}
 	})
 
 	// start

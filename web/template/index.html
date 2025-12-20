@@ -45,13 +45,19 @@
         <button type="submit">create</button>
       </form>
 
+      <div id="contact-error"></div>
+
       <hr />
 
       <div id="contacts">
         {{range .Contacts}} {{block "contact" .}}
-        <div>name: {{.Name}}email: {{.Email}}</div>
+        <div>name: {{.Name}}jemail: {{.Email}}</div>
         {{end}} {{end}}
       </div>
     </main>
   </body>
 </html>
+
+{{define "contact-error"}}
+<div style="color: red" id="contact-error" hx-swap-oob="true">{{.Error}}</div>
+{{end}}
