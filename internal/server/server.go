@@ -2,6 +2,7 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"text/template"
@@ -19,7 +20,11 @@ func Run() {
 	// routes
 	http.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		tmpl.Execute(w, count)
+	})
+
+	http.HandleFunc("POST /count", func(w http.ResponseWriter, r *http.Request) {
 		count.Count++
+		fmt.Fprintf(w, "count %d", count.Count)
 	})
 
 	// start
