@@ -19,8 +19,31 @@
   </head>
   <body>
     <main>
-      <p>count <span id="count">{{.Count}}</span></p>
+      <span>count <span id="count">{{.Count}}</span></span>
       <button hx-target="#count" hx-post="/count">increment</button>
+
+      <form hx-swap="beforeend" hx-target="#contacts" hx-post="/contacts">
+        <label for="name">name: </label>
+        <input placeholder="name" id="name" type="text" name="name" value="" />
+
+        <label for="email">email: </label>
+        <input
+          placeholder="email"
+          id="email"
+          type="email"
+          name="email"
+          value=""
+        />
+        <button type="submit">create</button>
+      </form>
+
+      <hr />
+
+      <div id="contacts">
+        {{range .Contacts}} {{block "contact" .}}
+        <div>name: {{.Name}}email: {{.Email}}</div>
+        {{end}} {{end}}
+      </div>
     </main>
   </body>
 </html>
