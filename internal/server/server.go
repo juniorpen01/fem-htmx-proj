@@ -28,7 +28,7 @@ func Run() {
 
 	http.HandleFunc("POST /count", func(w http.ResponseWriter, r *http.Request) {
 		count.Count++
-		fmt.Fprintf(w, "count %d", count.Count)
+		fmt.Fprint(w, count.Count)
 	})
 
 	// start

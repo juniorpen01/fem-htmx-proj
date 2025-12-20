@@ -8,6 +8,8 @@
 
     <link rel="icon" type="image/svg+xml" href="static/owl.svg" />
 
+    <script src="static/index.js"></script>
+
     <!-- copied from https://htmx.org/docs/#installing -->
     <script
       src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"
@@ -17,7 +19,7 @@
   </head>
   <body>
     <main>
-      <p id="count">count {{.Count}}</p>
+      <p>count <span id="count">{{.Count}}</span></p>
       <button hx-target="#count" hx-post="/count">increment</button>
     </main>
   </body>
